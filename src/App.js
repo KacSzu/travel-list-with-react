@@ -1,15 +1,18 @@
 import { useState } from "react";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: false },
-];
 export default function App() {
+  const [items, setItems] = useState([]);
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+  }
+  function handleDeleteButton(id) {
+    setItems((items) => items.filter((item) => item.id !== id));
+  }
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackingList />
+      <Form onAddItems={handleAddItems} />
+      <PackingList onDeleteButton={handleDeleteButton} items={items} />
       <Stats />
     </div>
   );
@@ -18,9 +21,10 @@ export default function App() {
 function Logo() {
   return <h1>🚀Far Away🏖</h1>;
 }
-function Form() {
+function Form({ onAddItems }) {
   const [quantity, setQuantity] = useState(1);
   const [description, setDescription] = useState(``);
+
   function handleSubmit(e) {
     e.preventDefault();
     if (!description) return;
@@ -30,7 +34,7 @@ function Form() {
       quantity: quantity,
       packed: false,
     };
-    initialItems.push(newItem);
+    onAddItems(newItem);
     setDescription("");
     setQuantity(1);
   }
@@ -55,24 +59,24 @@ function Form() {
     </form>
   );
 }
-function PackingList() {
+function PackingList({ onDeleteButton, items }) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
-          <Item item={item} key={item.id} />
+        {items.map((item) => (
+          <Item onDeleteButton={onDeleteButton} item={item} key={item.id} />
         ))}
       </ul>
     </div>
   );
 }
-function Item({ item }) {
+function Item({ item, onDeleteButton }) {
   return (
     <li>
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => onDeleteButton(item.id)}>❌</button>
     </li>
   );
 }
